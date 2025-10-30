@@ -1,0 +1,351 @@
+{
+  "applicationName": "application",
+  "apiDependencies": {
+    "tfl_api": {
+      "apiDescriptionUrl": "./tfl_api_swagger.json",
+      "apiDeploymentBaseUrl": "https://api.digital.tfl.gov.uk/",
+      "requests": [
+        {
+          "method": "GET",
+          "uriTemplate": "AccidentStats/{year}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "AirQuality"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "BikePoint/{id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "BikePoint/Search"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "BikePoint"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Cabwise/search"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Journey/Meta/Modes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Journey/JourneyResults/{from}/to/{to}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Meta/Modes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Meta/Severity"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Meta/DisruptionCategories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Meta/ServiceTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Route/Sequence/{direction}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Status/{StartDate}/to/{EndDate}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Status"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Arrivals/{stopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/StopPoints"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Timetable/{fromStopPointId}/to/{toStopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}/Timetable/{fromStopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/{ids-id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Mode/{modes}/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Mode/{modes}/Status"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Mode/{modes}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Mode/{modes}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Search/{query}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Line/Status/{severity}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/ActiveServiceTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/{mode}/Arrivals"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Occupancy/CarPark/{id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Occupancy/CarPark"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Occupancy/ChargeConnector/{ids}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Occupancy/ChargeConnector"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Occupancy/BikePoints/{ids}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/Meta/Categories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/Meta/PlaceTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/Address/Streets/{Postcode}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/Type/{types}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/{-id}/At/{Lat}/{Lon}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/{-id}/overlay/{z}/{Lat}/{Lon}/{width}/{height}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/{-id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place/Search"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Place"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/{ids}/Status"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/{ids}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/{ids}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/all/Street/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/all/Disruption/{disruptionIds}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/Meta/Categories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road/Meta/Severities"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Road"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search/BusSchedules"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search/Meta/SearchProviders"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search/Meta/Categories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search/Meta/Sorts"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Meta/Categories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Meta/StopTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Meta/Modes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/placeTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/Crowding/{line}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/Arrivals"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/ArrivalDepartures"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/CanReachOnLine/{lineId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/DirectionTo/{toStopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/TaxiRanks"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}/CarParks"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/{ids-id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Type/{types}/page/{page}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Type/{types}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/ServiceTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Mode/{modes}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Mode/{modes}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Search/{query}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Search"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint/Sms/{id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "StopPoint"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "TravelTimes/overlay/{z}/mapcenter/{mapCenterLat}/{mapCenterLon}/pinlocation/{pinLat}/{pinLon}/dimensions/{width}/{height}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "TravelTimes/compareOverlay/{z}/mapcenter/{mapCenterLat}/{mapCenterLon}/pinlocation/{pinLat}/{pinLon}/dimensions/{width}/{height}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Vehicle/{ids}/Arrivals"
+        }
+      ],
+      "extensions": {
+        "x-ms-kiota-hash": "842F4586C83483FE2A44C0F7A0F1CCA7F605DB2E3D2BB9D11ED57CF136E7158D",
+        "x-ms-kiota-version": "1.29.0"
+      }
+    }
+  }
+}
