@@ -9,7 +9,8 @@ from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 #from kiota_serialization.json.json_parse_node_factory import JsonParseNodeFactory
 from tfl_api.line.line_request_builder import LineRequestBuilder
 from tfl_api.line.meta.modes.modes_request_builder import ModesRequestBuilder
-
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.authentication.authentication_provider import AuthenticationProvider
 
 
 #load environment variables from .env file
@@ -18,18 +19,24 @@ load_dotenv(dotenv_path="config.env")
 #retrieve variables with defaults and type conversion
 api_key = os.getenv("tfl_api_key")
 api_username = os.getenv("tfl_api_name")
-debug_mode = os.getenv("DEBUG_MODE", "False").lower() in ("true", "1", "t")
-port = int(os.getenv("PORT", 8000))
+
 
 #validate required variables
 if not api_key:
     raise ValueError("TFL_API_KEY is required but not set in environment variables.")
 
 
+header = HeadersCollection()
+header.try_add("x-api-key", api_key)
+authenticator_provider = AuthenticationProvider()
+authenticator_provider.additional_authentication_context(header)
+
+
+
 client = ModesRequestBuilder(
     request_adapter=HttpxRequestAdapter(
         http_client=httpx.AsyncClient(),
-        authentication_provider=api_key,
+        authentication_provider=authenticator_provider,
         #parse_node_factory=JsonParseNodeFactory()
     ),
     path_parameters={}  
@@ -37,14 +44,13 @@ client = ModesRequestBuilder(
 
 async def get_different_tfl_modes(api_key: str):
     #Gets a list of valid modes
-    all_modes = await client.to_get_request_information(
+    all_modes = await client.get(
         request_configuration=RequestConfiguration(
             query_parameters=QueryParameters(
                 # Add any query parameters if needed
             ),
-            headers={
-                "x-api-key": api_key
-            }
+            headers=header
+            
         )
     )
     
