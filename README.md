@@ -14,3 +14,5 @@ python requests api library
 download kiota - import this json https://api.tfl.gov.uk/swagger/docs/v1
 eaCH API route has a class - import the class
 you can pass your request adaptor and paramters through there.
+need to think about how asynch io works
+https://api.tfl.gov.uk/swagger/ui/index.html#!/Line/Line_MetaModes
