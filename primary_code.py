@@ -1,73 +1,68 @@
 # created on 30/10/25 by gooseberry-py on a raspberry pi 5
-import os
-from dotenv import load_dotenv
 import asyncio
+import os
+
 import httpx
-from kiota_abstractions.base_request_configuration import RequestConfiguration
-from kiota_abstractions.default_query_parameters import QueryParameters
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter
-#from kiota_serialization.json.json_parse_node_factory import JsonParseNodeFactory
-from tfl_api.line.line_request_builder import LineRequestBuilder
-from tfl_api.line.meta.modes.modes_request_builder import ModesRequestBuilder
-from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.authentication.authentication_provider import AuthenticationProvider
-from kiota_abstractions.authentication.api_key_authentication_provider import ApiKeyAuthenticationProvider
-
-
-#load environment variables from .env file
-load_dotenv(dotenv_path="config.env")
-
-#retrieve variables with defaults and type conversion
-api_key = os.getenv("tfl_api_key")
-api_username = os.getenv("tfl_api_name")
-
-
-#validate required variables
-if not api_key:
-    raise ValueError("TFL_API_KEY is required but not set in environment variables.")
-
-
-header = HeadersCollection()
-header.add("x-api-key", api_key)
-print(header)
-ApiKeyAuthenticationProvider(key_location=header, api_key=api_key, parameter_name='x-api-key')
-
-
-client = ModesRequestBuilder(
-    request_adapter=HttpxRequestAdapter(
-        http_client=httpx.AsyncClient(),
-        authentication_provider=ApiKeyAuthenticationProvider
-,
-        #parse_node_factory=JsonParseNodeFactory()
-    ),
-    path_parameters={}  
+import rich
+from dotenv import load_dotenv
+from kiota_abstractions.authentication.api_key_authentication_provider import (
+    ApiKeyAuthenticationProvider,
+    KeyLocation,
 )
 
-async def get_different_tfl_modes(api_key: str):
-    #Gets a list of valid modes
-    all_modes = await client.get(
-        request_configuration=RequestConfiguration(
-            query_parameters=QueryParameters(
-                # Add any query parameters if needed
-            ),
-            headers=header
-            
+# from kiota_serialization.json.json_parse_node_factory import JsonParseNodeFactory
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
+from kiota_serialization_json.json_serialization_writer_factory import (
+    JsonSerializationWriterFactory,
+)
+
+from tfl_api_swagger.tfl_api import Tfl_api
+
+# load environment variables from .env file
+load_dotenv(dotenv_path="config.env")
+
+
+async def get_different_tfl_modes():
+    # retrieve variables with defaults and type conversion
+    api_key = os.getenv("TFL_API_KEY")
+
+    # validate required variables
+    if not api_key:
+        raise ValueError(
+            "TFL_API_KEY is required but not set in environment variables."
         )
+
+    # header
+    header = HeadersCollection()
+    header.add("Accept", "application/json")
+
+    # JSON parse factory
+    parse_node_factory = JsonParseNodeFactory()
+    serialization_writer_factory = JsonSerializationWriterFactory()
+
+    # request adapter
+    adapter = HttpxRequestAdapter(
+        base_url="https://api.tfl.gov.uk",
+        http_client=httpx.AsyncClient(verify=True),
+        authentication_provider=ApiKeyAuthenticationProvider(
+            key_location=KeyLocation.Header, api_key=api_key, parameter_name="x-api-key"
+        ),
+        serialization_writer_factory=serialization_writer_factory,
+        parse_node_factory=parse_node_factory,
     )
-    
 
-    print(all_modes)
+    # API client
+    client = Tfl_api(adapter)
+
+    # Gets a list of valid modes
+    all_modes = await client.line.meta.modes.get()
+    rich.print(all_modes)
+
+    # get tube lines
+    rich.print(await client.line.mode.by_modes("tube").get())
 
 
-
-# if __name__ == "__main__":
-#     get_different_tfl_modes()
-
-
-asyncio.run(get_different_tfl_modes(api_key=api_key))
-
-
-GET https://api.tfl.gov.uk/Line/Meta/Modes HTTP/1.1
-
-Cache-Control: no-cache
-
+if __name__ == "__main__":
+    asyncio.run(get_different_tfl_modes())
