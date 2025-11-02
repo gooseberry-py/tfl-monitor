@@ -11,6 +11,7 @@ from tfl_api.line.line_request_builder import LineRequestBuilder
 from tfl_api.line.meta.modes.modes_request_builder import ModesRequestBuilder
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.authentication.authentication_provider import AuthenticationProvider
+from kiota_abstractions.authentication.api_key_authentication_provider import ApiKeyAuthenticationProvider
 
 
 #load environment variables from .env file
@@ -27,16 +28,16 @@ if not api_key:
 
 
 header = HeadersCollection()
-header.try_add("x-api-key", api_key)
-authenticator_provider = AuthenticationProvider()
-authenticator_provider.additional_authentication_context(header)
-
+header.add("x-api-key", api_key)
+print(header)
+ApiKeyAuthenticationProvider(key_location=header, api_key=api_key, parameter_name='x-api-key')
 
 
 client = ModesRequestBuilder(
     request_adapter=HttpxRequestAdapter(
         http_client=httpx.AsyncClient(),
-        authentication_provider=authenticator_provider,
+        authentication_provider=ApiKeyAuthenticationProvider
+,
         #parse_node_factory=JsonParseNodeFactory()
     ),
     path_parameters={}  
@@ -64,3 +65,9 @@ async def get_different_tfl_modes(api_key: str):
 
 
 asyncio.run(get_different_tfl_modes(api_key=api_key))
+
+
+GET https://api.tfl.gov.uk/Line/Meta/Modes HTTP/1.1
+
+Cache-Control: no-cache
+
