@@ -37,7 +37,7 @@ class Tfl_api(BaseRequestBuilder):
             raise TypeError("request_adapter cannot be null.")
         super().__init__(request_adapter, "{+baseurl}", None)
         if not self.request_adapter.base_url:
-            self.request_adapter.base_url = "https://api.digital.tfl.gov.uk"
+            self.request_adapter.base_url = "https://api.tfl.gov.uk"
         self.path_parameters["base_url"] = self.request_adapter.base_url
     
     @property
