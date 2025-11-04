@@ -346,6 +346,108 @@
         "x-ms-kiota-hash": "842F4586C83483FE2A44C0F7A0F1CCA7F605DB2E3D2BB9D11ED57CF136E7158D",
         "x-ms-kiota-version": "1.29.0"
       }
+    },
+    "tfl_api_line": {
+      "apiDescriptionUrl": "./Line.json",
+      "apiDeploymentBaseUrl": "https://api.tfl.gov.uk/Line/",
+      "requests": [
+        {
+          "method": "GET",
+          "uriTemplate": "Meta/Modes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Meta/Severity"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Meta/DisruptionCategories"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Meta/ServiceTypes"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Route/Sequence/{direction}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Status/{startDate}/to/{endDate}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Status"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Arrivals/{stopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Arrivals"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/StopPoints"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Timetable/{fromStopPointId}/to/{toStopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}/Timetable/{fromStopPointId}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "{ids-id}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/{modes}/Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/{modes}/Status"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/{modes}/Disruption"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Mode/{modes}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Route"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Search/{query}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "Status/{severity}"
+        },
+        {
+          "method": "GET",
+          "uriTemplate": "*"
+        }
+      ],
+      "extensions": {
+        "x-ms-kiota-hash": "FE86BBA9B8572E50B9DB109A62799B3DEF39ED418EBAE9B0905F54229C7600C9",
+        "x-ms-kiota-version": "1.29.0"
+      }
     }
   }
 }
