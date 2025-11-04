@@ -29,3 +29,19 @@ I believe we need the following:
 under line there is a dropdown with the text saying "API definition"
 On the drop down is Open API 3 JSON
 I will use Kiota to try and install line
+
+***
+Ideal end result 
+The touchscreen display would have at all times (refreshing every second or so) the following pieces of information
+- the status of the northern line
+- the ETA of the next two trains on the northern line (northbound)
+- the ETA of the following busses
+- - 35 southbound (to CJ)
+  - 37 southbound (to CJ)
+  - 155 northbound (to Elephant and Castle)
+  - 155 southbond (from Elephant and Castle)
+- status details from two nearby "Borris Bike" stations
+- - how many bikes are available
+  - how many spaces are available
+stretch goal
+- If I can get train timetables, the time for next two trains from CJ to Portsmouth and Alton.
