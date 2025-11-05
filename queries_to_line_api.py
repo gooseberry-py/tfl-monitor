@@ -3,6 +3,7 @@ import asyncio
 import os
 import httpx
 import rich
+import requests
 from dotenv import load_dotenv
 from kiota_abstractions.authentication.api_key_authentication_provider import (
     ApiKeyAuthenticationProvider,
@@ -11,7 +12,7 @@ from kiota_abstractions.authentication.api_key_authentication_provider import (
 
 # from kiota_serialization.json.json_parse_node_factory import JsonParseNodeFactory
 from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.request_configuration import RequestConfiguration
+from kiota_abstractions.base_request_configuration import RequestConfiguration
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
 from kiota_serialization_json.json_serialization_writer_factory import (
@@ -58,63 +59,54 @@ async def get_different_tfl_modes():
 
     # Gets a list of valid modes
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_MetaModes
-    #all_modes = await client.meta.modes.get()
+    all_modes = await client.meta.modes.get()
     #rich.print(all_modes)
 
     # get tube lines
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StatusByModeByPathModesQueryDetailQuerySeverityLevel
+    tube_lines = await client.mode.by_modes("tube").get()
     #rich.print(await client.mode.by_modes("tube").get())
 
-    # get all the stops on the northern line
+    #Get all valid routes for all lines, including the name and id of the originating and terminating stops for each route.
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_RouteSequenceByPathIdPathDirectionQueryServiceTypesQueryExcludeCrowding
-    # can be an line so will try for bus 35 
-    # inbound / outbound is the direction -- could be regular / night
-    # rich.print(await client.route("northern","inbound","regular").get())
     request_configuration = RequestConfiguration()
     request_configuration.headers = HeadersCollection()
     request_configuration.headers.add("Accept", "application/json")
     request_configuration.query_parameters = {"serviceTypes": "Regular"}
+    all_lines_routes = await client.route.get(request_configuration=request_configuration)
+    #rich.print(await client.route.get(request_configuration=request_configuration))
+
+    #Gets the line status of for all lines for the given modes
+    #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StatusByModeByPathModesQueryDetailQuerySeverityLevel
+    request_configuration = RequestConfiguration()
+    request_configuration.headers = HeadersCollection()
+    request_configuration.headers.add("Accept", "application/json")
+    request_configuration.query_parameters = {"modes": "tube"}
+    request_configuration.query_parameters = {"detail": True}
+    all_tube_status = await client.mode.item.status.get(request_configuration=request_configuration)
+    #todo find out how to get the status builder going
+    all_tube_status = await client.mode.__init__()
+
+    
+    
+    
+    rich.print(all_tube_status)
+
+    # can be an line so will try for bus 35 
+    # inbound / outbound is the direction -- could be regular / night
+    # rich.print(await client.route("northern","inbound","regular").get())
 
 
-    client.route.path_parameters["ids"] = "victoria"
-    rich.print(await client.route.get(request_configuration=request_configuration))
+    #client.route.path_parameters["ids"] = "victoria"
+
     # todo figure out which query this actually is running
 
 
 
-import requests
 
 
 
-def test_direct_request():
-    #this works even without an API key
-    ids = "victoria"
-    serviceTypes = "Regular"
-    test = requests.get(f"https://api.tfl.gov.uk/Line/{ids}/Route?serviceTypes={serviceTypes}")
-    print(test) 
 
-
-def test_request_from_tfl_website():
-    #this doesnt work even with the API key in headers, it gives 403 forbidden
-    import urllib.request, json
-
-    try:
-        url = "https://api.tfl.gov.uk/Line/northern/Route/Sequence/inbound?serviceTypes=Regular"
-
-        hdr ={
-        # Request headers
-        'Cache-Control': 'no-cache',
-        'app_key': os.getenv("TFL_API_KEY"),
-        }
-
-        req = urllib.request.Request(url, headers=hdr)
-
-        req.get_method = lambda: 'GET'
-        response = urllib.request.urlopen(req)
-        print(response.getcode())
-        print(response.read())
-    except Exception as e:
-        print(e)
 
 
 if __name__ == "__main__":
