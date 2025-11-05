@@ -70,13 +70,20 @@ async def get_different_tfl_modes():
     # inbound / outbound is the direction -- could be regular / night
     # rich.print(await client.route("northern","inbound","regular").get())
     request_configuration = {'headers': header,
-                            'id':"Victoria",
-                            'direction':"outbound",
                             'service_types':"regular"}   
 
+
+    client.route.path_parameters["ids"] = "Victoria"
     rich.print(await client.route.get(request_configuration=request_configuration))
     # todo figure out which query this actually is running
 
+
+    import requests
+
+    ids = "victoria"
+    serviceTypes = "Regular"
+    requests.get(f"https://api.tfl.gov.uk/Line/{ids}/Route?serviceTypes={service_type}")
+    
 
 
 if __name__ == "__main__":
