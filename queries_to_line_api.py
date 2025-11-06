@@ -6,92 +6,43 @@ import pandas as pd
 import json
 import rich
 import requests
-from dotenv import load_dotenv
-from kiota_abstractions.authentication.api_key_authentication_provider import (
-    ApiKeyAuthenticationProvider,
-    KeyLocation,
-)
-
-# from kiota_serialization.json.json_parse_node_factory import JsonParseNodeFactory
-from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.base_request_configuration import RequestConfiguration
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter
-from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
-from kiota_serialization_json.json_serialization_writer_factory import (
-    JsonSerializationWriterFactory,
-)
-
-from tfl_api_line.tfl_api_line import Tfl_api_line
-#how to get past the item problem
-from tfl_api_line.item.stop_points.stop_points_request_builder import StopPointsRequestBuilder
-from tfl_api_line.item.status.status_request_builder import StatusRequestBuilder
-
-
-# load environment variables from .env file
-load_dotenv(dotenv_path="config.env")
-
-
-async def run_headers_and_api():
-    # retrieve variables with defaults and type conversion
-    api_key = os.getenv("TFL_API_KEY")
-
-    # validate required variables
-    if not api_key:
-        raise ValueError(
-            "TFL_API_KEY is required but not set in environment variables."
-        )
-
-    # header
-    header = HeadersCollection()
-    header.add("Accept", "application/json")
-
-    # JSON parse factory
-    parse_node_factory = JsonParseNodeFactory()
-    serialization_writer_factory = JsonSerializationWriterFactory()
-
-    # request adapter
-    adapter = HttpxRequestAdapter(
-        base_url="https://api.tfl.gov.uk",
-        http_client=httpx.AsyncClient(verify=True),
-        authentication_provider=ApiKeyAuthenticationProvider(
-            key_location=KeyLocation.Header, api_key=api_key, parameter_name="x-api-key"
-        ),
-        serialization_writer_factory=serialization_writer_factory,
-        parse_node_factory=parse_node_factory,
-    )
-
-    # API client
-    client = Tfl_api_line(adapter)
-    return client
 
 async def _get_list_modes():
     # Gets a list of valid modes
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_MetaModes
     all_modes = requests.get(f'https://api.tfl.gov.uk/Line/Meta/Modes')
-    return all_modes
+    all_modes_clean = json.loads(all_modes.text)
+    all_modes_list = []
+    for item in range(len(all_modes_clean)):
+        all_modes_list.append(all_modes_clean[item]["modeName"])
+    return all_modes_list
 
-async def _get_tube_lines(modes='tube'):
+async def _get_tube_lines(modes):
     # get tube lines
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StatusByModeByPathModesQueryDetailQuerySeverityLevel
     tube_lines = requests.get(f'https://api.tfl.gov.uk/Line/Mode/{modes}/Status')
-    return tube_lines
+    tube_lines_clean = json.loads(tube_lines.text)
+    tube_lines_list = []
+    for item in range(len(tube_lines_clean)):
+        tube_lines_list.append(tube_lines_clean[item]["name"])
+    return tube_lines_list
 
-async def _all_valid_routes_all_lines():
+async def _all_valid_routes_all_lines(modes):
     #Get all valid routes for all lines, including the name and id of the originating and terminating stops for each route.
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_RouteByModeByPathModesQueryServiceTypes
     service_type = 'Regular' # or 'Night'
-    modes = "tube"
     all_lines_routes = requests.get(f'https://api.tfl.gov.uk/Line/Mode/{modes}/Route?serviceTypes={service_type}')
-    return all_lines_routes
+    all_lines_routes_clean = json.loads(all_lines_routes.text)
+    return all_lines_routes_clean
 
 async def _all_valid_routes_single_line(line):
     #Gets all valid routes for given line id, including the sequence of stops on each route.
+    #We get the name, location, and IDs of different stops on the line
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_RouteSequenceByPathIdPathDirectionQueryServiceTypesQueryExcludeCrowding
     service_type = 'Regular' # or 'Night'
     all_routes_single = requests.get(f'https://api.tfl.gov.uk/Line/{line}/Route/Sequence/all?serviceTypes={service_type}')
-    return all_routes_single
-    
-    
+    all_routes_single_clean = json.loads(all_routes_single.text)   
+    return all_routes_single_clean
 
 async def _get_stops_on_a_line(lines_to_check):
     stops_dict = {}
@@ -105,7 +56,7 @@ async def _get_stops_on_a_line(lines_to_check):
 
 async def _get_tube_status_update():
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StatusByModeByPathModesQueryDetailQuerySeverityLevel
-    modes = "tube" #"bus" "dlr" are valid
+    modes = "tube" #"bus" "dlr" are valid - try 'national-rail'
     status_dict = {}
     status_raw = requests.get(f"https://api.tfl.gov.uk/Line/Mode/{modes}/Status")
     status_neat = json.loads(status_raw.text)
@@ -115,38 +66,45 @@ async def _get_tube_status_update():
         status_dict[id_key] = id_body
     return status_dict
 
-async def _train_or_bus_timetable(dict_of_useful_tube_and_bus_stops):
-    #Gets the timetable for a specified station on the give line
-    #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_TimetableByPathFromStopPointIdPathId
-    tube_bus_schedule = {}
-    for station, line in dict_of_useful_tube_and_bus_stops.values():
-        schedule_raw = requests.get(f"https://api.tfl.gov.uk/Line/{line}/Timetable/{station}")
-        schedule_neat = json.loads(schedule_raw.text)
-        tube_bus_schedule[(line, schedule_neat[0]["stationName"])] = schedule_neat
-    return tube_bus_schedule
-
-
 async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
     #Get the list of arrival predictions for given line ids based at the given stop
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_ArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestina
     next_transport_dict = {}
+    eta_dashboard_cols = ['modeName', 'stationName', 'platformName', 'expectedArrival', 'currentLocation',]
+    eta_dashboard_df = pd.DataFrame(columns=eta_dashboard_cols)
     for station, line in dict_of_useful_tube_and_bus_stops.values():
         schedule_raw = requests.get(f"https://api.tfl.gov.uk/Line/{line}/Arrivals/{station}")
         schedule_neat = json.loads(schedule_raw.text)
         station_and_direction = f'{schedule_neat[0]["stationName"]} {schedule_neat[0]["platformName"]}'
         next_transport_dict[(line, station_and_direction)] = schedule_neat
-    return next_transport_dict
+    for y in next_transport_dict.keys():
+        for z in range(len(next_transport_dict[y])):
+            new_row = {}
+            new_row['modeName'] = next_transport_dict[y][z]["modeName"]
+            new_row['stationName'] = next_transport_dict[y][z]["stationName"]
+            if next_transport_dict[y][z]["modeName"] == "tube":
+                new_row['platformName'] = next_transport_dict[y][z]["platformName"]
+            elif next_transport_dict[y][z]["modeName"] == "bus":
+                new_row['platformName'] = next_transport_dict[y][z]["lineName"]
+            new_row['expectedArrival'] = next_transport_dict[y][z]["expectedArrival"]
+            if next_transport_dict[y][z]["currentLocation"]:
+                new_row['currentLocation'] = next_transport_dict[y][z]["currentLocation"]
+            eta_dashboard_df.loc[len(eta_dashboard_df)] = new_row#platformName will also be lineName
+    
+    return eta_dashboard_df
 
 if __name__ == "__main__":
-    client = asyncio.run(run_headers_and_api())
     #generic tube information functions
     list_of_modes = asyncio.run(_get_list_modes())
-    list_of_tube_lines = asyncio.run(_get_tube_lines("northern"))
-    routes_all_lines = asyncio.run(_all_valid_routes_all_lines())
+    list_of_tube_lines = asyncio.run(_get_tube_lines("tube"))
+    routes_all_lines = asyncio.run(_all_valid_routes_all_lines("tube"))
     routes_single_line = asyncio.run(_all_valid_routes_single_line('northern'))
+    # in dashboard
     tube_line_status = asyncio.run(_get_tube_status_update())
     
+    #more detailed checks for my needs that will get into the dashboard
     lines_to_check = ["northern", "35", "37", "155"]
+    #this tells me which stops exist on different lines but will not be used in the dashboard
     stops = asyncio.run(_get_stops_on_a_line(lines_to_check))
 
     dict_of_useful_tube_and_bus_stops={
@@ -160,7 +118,6 @@ if __name__ == "__main__":
     'Oval Station Bus 1':('490000172Q',"155"),#northbound
     'Oval Station Bus 2':('490000172R',"155"),#southbound to CC
     }
-    tube_and_bus_timetable = asyncio.run(_train_or_bus_timetable(dict_of_useful_tube_and_bus_stops))
     next_tube_and_bus = asyncio.run(_next_train_or_bus(dict_of_useful_tube_and_bus_stops))
 
 

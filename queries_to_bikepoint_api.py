@@ -12,16 +12,16 @@ import json
 load_dotenv(dotenv_path="config.env")
 
 
-def get_all_borris_bike_info():
+async def get_all_borris_bike_info():
     #this works even without an API key
     #Gets all bike point locations. The Place object has an addtionalProperties array which contains the nbBikes, nbDocks and nbSpaces numbers which give the status of the BikePoint. A mismatch in these numbers i.e. nbDocks - (nbBikes + nbSpaces) != 0 indicates broken docks.
     #https://api-portal.tfl.gov.uk/api-details#api=BikePoint&operation=BikePoint_GetAll
     bb_info = requests.get(f"https://api.tfl.gov.uk/BikePoint/")
-    bikepoint_test = json.loads(bb_info.text)
-    #todo convert this into something useful
+    bikepoint_json = json.loads(bb_info.text)
+    return bikepoint_json
 
 
-def get_specific_borris_bike_info(dict_of_useful_bikepoints):
+async def get_specific_borris_bike_info(dict_of_useful_bikepoints):
     #Gets the bike point with the given id.
     #https://api-portal.tfl.gov.uk/api-details#api=BikePoint&operation=BikePoint_Get
     bike_info_df = pd.DataFrame(columns=["id", "commonName", "NbBikes", "NbEmptyDocks", "NbDocks", "NbStandardBikes", "NbEBikes"])
@@ -34,7 +34,6 @@ def get_specific_borris_bike_info(dict_of_useful_bikepoints):
         new_row["id"] = bikepoint_info["id"]
         new_row["commonName"] = bikepoint_info["commonName"]
         for x in range(len(bikepoint_info["additionalProperties"])):
-            print(bikepoint_info["additionalProperties"][x]["key"])
             if bikepoint_info["additionalProperties"][x]["key"] == "NbBikes":
                 new_row["NbBikes"] = bikepoint_info["additionalProperties"][x]["value"]
             if bikepoint_info["additionalProperties"][x]["key"] == "NbEmptyDocks":
@@ -55,5 +54,5 @@ if __name__ == "__main__":
     "BikePoints_55":"Finsbury Circus, Liverpool Street",
     }
     
-    bike_info = get_specific_borris_bike_info(dict_of_useful_bikepoints)
+    bike_info = asyncio.run(get_specific_borris_bike_info(dict_of_useful_bikepoints))
     rich.print(bike_info)
