@@ -21,24 +21,39 @@ def get_all_borris_bike_info():
     #todo convert this into something useful
 
 
-def get_specific_borris_bike_info():
-    #this works even without an API key
+def get_specific_borris_bike_info(dict_of_useful_bikepoints):
     #Gets the bike point with the given id.
-    # it doesnt tell me how many bikes are in the station so cant really see a use for it
-    dict_of_useful_bikepoints{
-        "BikePoints_355":"Clapham Common Station, Clapham Common",
-        "BikePoints_808":"Gauden Road, Clapham",
-        "BikePoints_55":"Finsbury Circus, Liverpool Street",
-        }
-    
-    
-    id = "BikePoints_355"
     #https://api-portal.tfl.gov.uk/api-details#api=BikePoint&operation=BikePoint_Get
-    bb_info = requests.get(f"https://api.tfl.gov.uk/BikePoint/{id}")
-    breakpoint()
-    bikepoint_dataFrame = pd.read_json(bb_info.text)
-
-
+    bike_info_df = pd.DataFrame(columns=["id", "commonName", "NbBikes", "NbEmptyDocks", "NbDocks", "NbStandardBikes", "NbEBikes"])
+    
+    for id in dict_of_useful_bikepoints.keys():
+        bikepoint_info_raw = requests.get(f"https://api.tfl.gov.uk/BikePoint/{id}")
+        bikepoint_info = json.loads(bikepoint_info_raw.text)
+        #info from the bikepoint
+        new_row = {}
+        new_row["id"] = bikepoint_info["id"]
+        new_row["commonName"] = bikepoint_info["commonName"]
+        for x in range(len(bikepoint_info["additionalProperties"])):
+            print(bikepoint_info["additionalProperties"][x]["key"])
+            if bikepoint_info["additionalProperties"][x]["key"] == "NbBikes":
+                new_row["NbBikes"] = bikepoint_info["additionalProperties"][x]["value"]
+            if bikepoint_info["additionalProperties"][x]["key"] == "NbEmptyDocks":
+                new_row["NbEmptyDocks"] = bikepoint_info["additionalProperties"][x]["value"]
+            if bikepoint_info["additionalProperties"][x]["key"] == "NbDocks":
+                new_row["NbDocks"] = bikepoint_info["additionalProperties"][x]["value"]
+            if bikepoint_info["additionalProperties"][x]["key"] == "NbStandardBikes":
+                new_row["NbStandardBikes"] = bikepoint_info["additionalProperties"][x]["value"]
+            if bikepoint_info["additionalProperties"][x]["key"] == "NbEBikes":
+                new_row["NbEBikes"] = bikepoint_info["additionalProperties"][x]["value"]       
+        bike_info_df.loc[len(bike_info_df)] = new_row
+    return bike_info_df
 
 if __name__ == "__main__":
-    get_all_borris_bike_info()
+    dict_of_useful_bikepoints = {
+    "BikePoints_355":"Clapham Common Station, Clapham Common",
+    "BikePoints_808":"Gauden Road, Clapham",
+    "BikePoints_55":"Finsbury Circus, Liverpool Street",
+    }
+    
+    bike_info = get_specific_borris_bike_info(dict_of_useful_bikepoints)
+    rich.print(bike_info)

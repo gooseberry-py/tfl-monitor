@@ -117,6 +117,59 @@ def test_request_from_tfl_website():
         print(e)
 
 
+
+
+
+
+#these are functions that dont work
+    #Gets the line status of for all lines for the given modes
+    #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StatusByModeByPathModesQueryDetailQuerySeverityLevel
+    '''request_configuration = RequestConfiguration()
+    request_configuration.headers = HeadersCollection()
+    request_configuration.headers.add("Accept", "application/json")
+    request_configuration.query_parameters = {"modes": "tube"}
+    request_configuration.query_parameters = {"detail": True}
+    stop_point_client = StopPointsRequestBuilder(request_adapter=adapter, path_parameters=request_configuration)
+    all_tube_status = await stop_point_client.get()'''
+    
+
+    #Get the stops on a given line
+    #Gets a list of the stations that serve the given line id
+    #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_StopPointsByPathIdQueryTflOperatedNationalRailStationsOnly
+    #https://api.tfl.gov.uk/Line/{id}/StopPoints[?tflOperatedNationalRailStationsOnly]
+    '''request_configuration = RequestConfiguration()
+    request_configuration.headers = HeadersCollection()
+    request_configuration.headers.add("Accept", "application/json")
+    request_configuration.query_parameters = {"id": "northern"}
+    request_configuration.query_parameters = {"tflOperatedNationalRailStationsOnly": True}
+    stop_point_client = StopPointsRequestBuilder(request_adapter=adapter, path_parameters={"id": "northern"})
+    all_stops_on_line = await stop_point_client.get()
+    # path = f'item/stop_points.'
+    # all_stops_on_line = await client.path.get()
+    # .mode.item.status.get(request_configuration=request_configuration)
+    rich.print(all_stops_on_line)'''
+    
+    
+
+
+
+def test_query():
+    id = "northern"
+    tflOperatedNationalRailStationsOnly = True
+    test = requests.get(f"https://api.tfl.gov.uk/Line/{id}/StopPoints")
+    #test = requests.get(f"https://api.tfl.gov.uk/Line/{id}/StopPoints?tflOperatedNationalRailStationsOnly={tflOperatedNationalRailStationsOnly}")
+    rich.print(test)
+    nice = pd.read_json(test.text)
+    nice1 = json.loads(test.text)
+    # can be an line so will try for bus 35 
+    # inbound / outbound is the direction -- could be regular / night
+    # rich.print(await client.route("northern","inbound","regular").get())
+    #client.route.path_parameters["ids"] = "victoria"
+
+    # todo figure out which query this actually is running
+
+
+
 if __name__ == "__main__":
     asyncio.run(get_different_tfl_modes())
     #test_direct_request()
