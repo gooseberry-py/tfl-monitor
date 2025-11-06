@@ -6,6 +6,7 @@ import pandas as pd
 import json
 import rich
 import requests
+from datetime import datetime as dt
 
 async def _get_list_modes():
     # Gets a list of valid modes
@@ -91,7 +92,18 @@ async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
                 new_row['currentLocation'] = next_transport_dict[y][z]["currentLocation"]
             eta_dashboard_df.loc[len(eta_dashboard_df)] = new_row#platformName will also be lineName
     
+    #now converting the arrival time into a datetime format
+    current_dateTime = dt.now()
+    eta_dashboard_df["expectedArrival"] = pd.to_datetime(eta_dashboard_df["expectedArrival"], format='%Y-%m-%dT%H:%M:%SZ')
+    eta_dashboard_df["TimeToArrival"] = eta_dashboard_df["expectedArrival"] - current_dateTime
+
     return eta_dashboard_df
+
+def convert_str_to_datetime(str_data):
+    #https://docs.python.org/3/library/datetime.html#format-codes
+    format = '%Y-%m-%dT%H:%M:%SZ'
+    datetime_str = dt.strptime(str_data, format)
+    return datetime_str
 
 if __name__ == "__main__":
     #generic tube information functions
