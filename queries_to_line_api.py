@@ -8,6 +8,15 @@ import rich
 import requests
 from datetime import datetime as dt
 
+
+def format_timedelta(td):
+    # Convert to total seconds and round
+    total_seconds = int(td.total_seconds())
+    # Calculate minutes and remaining seconds
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+    return f"{minutes} mins and {seconds} seconds"
+
 async def _get_list_modes():
     # Gets a list of valid modes
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_MetaModes
@@ -71,7 +80,7 @@ async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
     #Get the list of arrival predictions for given line ids based at the given stop
     #https://api-portal.tfl.gov.uk/api-details#api=Line&operation=Line_ArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestina
     next_transport_dict = {}
-    eta_dashboard_cols = ['modeName', 'stationName', 'platformName', 'expectedArrival', 'currentLocation',]
+    eta_dashboard_cols = ['modeName', 'stationName', 'platformName', 'expectedArrival', "TimeToArrival", 'currentLocation',]
     eta_dashboard_df = pd.DataFrame(columns=eta_dashboard_cols)
     for station, line in dict_of_useful_tube_and_bus_stops.values():
         schedule_raw = requests.get(f"https://api.tfl.gov.uk/Line/{line}/Arrivals/{station}")
@@ -82,11 +91,12 @@ async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
         for z in range(len(next_transport_dict[y])):
             new_row = {}
             new_row['modeName'] = next_transport_dict[y][z]["modeName"]
-            new_row['stationName'] = next_transport_dict[y][z]["stationName"]
             if next_transport_dict[y][z]["modeName"] == "tube":
                 new_row['platformName'] = next_transport_dict[y][z]["platformName"]
+                new_row['stationName'] = next_transport_dict[y][z]["stationName"]
             elif next_transport_dict[y][z]["modeName"] == "bus":
                 new_row['platformName'] = next_transport_dict[y][z]["lineName"]
+                new_row['stationName'] = y[1]
             new_row['expectedArrival'] = next_transport_dict[y][z]["expectedArrival"]
             if next_transport_dict[y][z]["currentLocation"]:
                 new_row['currentLocation'] = next_transport_dict[y][z]["currentLocation"]
@@ -96,7 +106,10 @@ async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
     current_dateTime = dt.now()
     eta_dashboard_df["expectedArrival"] = pd.to_datetime(eta_dashboard_df["expectedArrival"], format='%Y-%m-%dT%H:%M:%SZ')
     eta_dashboard_df["TimeToArrival"] = eta_dashboard_df["expectedArrival"] - current_dateTime
-
+    eta_dashboard_df.sort_values(['modeName', "stationName", 'expectedArrival'], ascending=[False, True, True], inplace=True)
+    eta_dashboard_df["expectedArrival"] = eta_dashboard_df["expectedArrival"].dt.time
+    # Convert timedelta to minutes and seconds format    
+    eta_dashboard_df["TimeToArrival"] = eta_dashboard_df["TimeToArrival"].apply(format_timedelta)
     return eta_dashboard_df
 
 def convert_str_to_datetime(str_data):
@@ -129,6 +142,8 @@ if __name__ == "__main__":
     'Clapham Common Station Bus 6':('490000050G',"155"),#southbound
     'Oval Station Bus 1':('490000172Q',"155"),#northbound
     'Oval Station Bus 2':('490000172R',"155"),#southbound to CC
+    'Dorset Road Oval 1':("490006134S", "155"),#southbound to CC - dorset road stop h
+    'Dorset Road Oval 2':("490006134N", "155"),
     }
     next_tube_and_bus = asyncio.run(_next_train_or_bus(dict_of_useful_tube_and_bus_stops))
 

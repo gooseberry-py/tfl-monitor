@@ -18,7 +18,14 @@ async def get_all_borris_bike_info():
     #https://api-portal.tfl.gov.uk/api-details#api=BikePoint&operation=BikePoint_GetAll
     bb_info = requests.get(f"https://api.tfl.gov.uk/BikePoint/")
     bikepoint_json = json.loads(bb_info.text)
-    return bikepoint_json
+    list_of_bikepoint_dict = {}
+    for x in range(len(bikepoint_json)):
+        list_of_bikepoint_dict[bikepoint_json[x]["id"]] = bikepoint_json[x]["commonName"] 
+    #finding a specific bikepoint based on a string
+    # for key, body in list_of_bikepoint_dict.items():
+    #     if "Caldwell" in body:
+    #         print(key, body)
+    return list_of_bikepoint_dict
 
 
 async def get_specific_borris_bike_info(dict_of_useful_bikepoints):
@@ -31,20 +38,21 @@ async def get_specific_borris_bike_info(dict_of_useful_bikepoints):
         bikepoint_info = json.loads(bikepoint_info_raw.text)
         #info from the bikepoint
         new_row = {}
-        new_row["id"] = bikepoint_info["id"]
+        # new_row["id"] = bikepoint_info["id"]
         new_row["commonName"] = bikepoint_info["commonName"]
         for x in range(len(bikepoint_info["additionalProperties"])):
             if bikepoint_info["additionalProperties"][x]["key"] == "NbBikes":
                 new_row["NbBikes"] = bikepoint_info["additionalProperties"][x]["value"]
             if bikepoint_info["additionalProperties"][x]["key"] == "NbEmptyDocks":
                 new_row["NbEmptyDocks"] = bikepoint_info["additionalProperties"][x]["value"]
-            if bikepoint_info["additionalProperties"][x]["key"] == "NbDocks":
-                new_row["NbDocks"] = bikepoint_info["additionalProperties"][x]["value"]
-            if bikepoint_info["additionalProperties"][x]["key"] == "NbStandardBikes":
-                new_row["NbStandardBikes"] = bikepoint_info["additionalProperties"][x]["value"]
-            if bikepoint_info["additionalProperties"][x]["key"] == "NbEBikes":
-                new_row["NbEBikes"] = bikepoint_info["additionalProperties"][x]["value"]       
+            # if bikepoint_info["additionalProperties"][x]["key"] == "NbDocks":
+            #     new_row["NbDocks"] = bikepoint_info["additionalProperties"][x]["value"]
+            # if bikepoint_info["additionalProperties"][x]["key"] == "NbStandardBikes":
+            #     new_row["NbStandardBikes"] = bikepoint_info["additionalProperties"][x]["value"]
+            # if bikepoint_info["additionalProperties"][x]["key"] == "NbEBikes":
+            #     new_row["NbEBikes"] = bikepoint_info["additionalProperties"][x]["value"]       
         bike_info_df.loc[len(bike_info_df)] = new_row
+    
     return bike_info_df
 
 if __name__ == "__main__":
@@ -55,4 +63,5 @@ if __name__ == "__main__":
     }
     
     bike_info = asyncio.run(get_specific_borris_bike_info(dict_of_useful_bikepoints))
+    test = asyncio.run(get_all_borris_bike_info())
     rich.print(bike_info)
