@@ -10,13 +10,16 @@ import time
 
 from queries_to_bikepoint_api import get_all_borris_bike_info, get_specific_borris_bike_info
 from queries_to_line_api import _get_list_modes, _get_tube_lines, _all_valid_routes_all_lines, _all_valid_routes_single_line, _get_tube_status_update, _get_stops_on_a_line, _next_train_or_bus
-from display_data import display_data
+
 
 async def constant_data_pull():
 
     data_dict = {}
     tube_line_status = await _get_tube_status_update()
-    data_dict["tube_line_status"] = tube_line_status
+    tube_line_status1 = pd.DataFrame.from_dict(tube_line_status, orient='index', columns=['Status'])
+    tube_line_status1.reset_index(inplace=True)
+    tube_line_status1.rename(columns={'index':'Line'}, inplace=True)
+    data_dict["tube_line_status"] = tube_line_status1
 
     dict_of_useful_tube_and_bus_stops={
     "Clapham Common Underground Station":("940GZZLUCPC","northern"),
@@ -41,7 +44,6 @@ async def constant_data_pull():
 
 if __name__ == "__main__":
     data_dict = asyncio.run(constant_data_pull())
-    display_data = asyncio.run(display_data())
     # while True:
     #     data_dict = asyncio.run(constant_data_pull())
     #     rich.print(data_dict)

@@ -31,7 +31,7 @@ async def get_all_borris_bike_info():
 async def get_specific_borris_bike_info(dict_of_useful_bikepoints):
     #Gets the bike point with the given id.
     #https://api-portal.tfl.gov.uk/api-details#api=BikePoint&operation=BikePoint_Get
-    bike_info_df = pd.DataFrame(columns=["id", "commonName", "NbBikes", "NbEmptyDocks", "NbDocks", "NbStandardBikes", "NbEBikes"])
+    bike_info_df = pd.DataFrame(columns=["commonName", "NbBikes", "NbEmpty", ])
     
     for id in dict_of_useful_bikepoints.keys():
         bikepoint_info_raw = requests.get(f"https://api.tfl.gov.uk/BikePoint/{id}")
@@ -44,7 +44,7 @@ async def get_specific_borris_bike_info(dict_of_useful_bikepoints):
             if bikepoint_info["additionalProperties"][x]["key"] == "NbBikes":
                 new_row["NbBikes"] = bikepoint_info["additionalProperties"][x]["value"]
             if bikepoint_info["additionalProperties"][x]["key"] == "NbEmptyDocks":
-                new_row["NbEmptyDocks"] = bikepoint_info["additionalProperties"][x]["value"]
+                new_row["NbEmpty"] = bikepoint_info["additionalProperties"][x]["value"]
             # if bikepoint_info["additionalProperties"][x]["key"] == "NbDocks":
             #     new_row["NbDocks"] = bikepoint_info["additionalProperties"][x]["value"]
             # if bikepoint_info["additionalProperties"][x]["key"] == "NbStandardBikes":

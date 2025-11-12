@@ -15,7 +15,11 @@ def format_timedelta(td):
     # Calculate minutes and remaining seconds
     minutes = total_seconds // 60
     seconds = total_seconds % 60
-    return f"{minutes} mins and {seconds} seconds"
+    
+    if total_seconds < 0:
+        minutes = 0
+        seconds = 0
+    return f"{minutes} mins {seconds} secs"
 
 async def _get_list_modes():
     # Gets a list of valid modes
@@ -110,7 +114,13 @@ async def _next_train_or_bus(dict_of_useful_tube_and_bus_stops):
     eta_dashboard_df["expectedArrival"] = eta_dashboard_df["expectedArrival"].dt.time
     # Convert timedelta to minutes and seconds format    
     eta_dashboard_df["TimeToArrival"] = eta_dashboard_df["TimeToArrival"].apply(format_timedelta)
-    return eta_dashboard_df
+    eta_dashboard_bus = eta_dashboard_df[eta_dashboard_df["modeName"] == "bus"]
+    eta_dashboard_tube = eta_dashboard_df[eta_dashboard_df["modeName"] == "tube"]
+    eta_dashboard_tube_mini = eta_dashboard_tube[:8]
+    eta_dashboard_combo = pd.concat([eta_dashboard_tube_mini, eta_dashboard_bus], axis=0)
+    eta_dashboard_combo.drop(["modeName"], inplace=True, axis=1)
+    eta_dashboard_combo.rename(columns={"expectedArrival":"expected"}, inplace=True)
+    return eta_dashboard_combo
 
 def convert_str_to_datetime(str_data):
     #https://docs.python.org/3/library/datetime.html#format-codes

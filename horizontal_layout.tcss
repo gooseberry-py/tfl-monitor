@@ -1,0 +1,66 @@
+Screen {
+    layout: vertical;
+}
+
+#main_layout {
+    width: 100%;
+    height: 100%;
+    layout: vertical;
+}
+
+#header {
+    width: 100%;
+    height: 3;
+    layout: horizontal;
+    border: solid cyan;
+    background: $panel;
+}
+
+#header_title {
+    width: auto;
+    height: 100%;
+    align: left middle;
+    text-style: bold;
+}
+
+#header_time {
+    width: 1fr;
+    height: 100%;
+    align: center middle;
+}
+
+#exit_btn {
+    width: auto;
+    height: 100%;
+}
+
+#main_container {
+    width: 100%;
+    height: 1fr;
+    layout: horizontal;
+}
+
+#next_tube_and_bus_df {
+    width: 2fr;
+    height: 100%;
+    border: solid green;
+}
+
+#right_container {
+    width: 1fr;
+    height: 100%;
+    layout: vertical;
+    border: solid blue;
+}
+
+DataTable {
+    border: solid yellow;
+}
+
+#status_df {
+    height: 2fr;
+}
+
+#borris_bike_df {
+    height: 1fr;
+}
